@@ -1,7 +1,6 @@
 package ru.gofc.smart_home.hub.config;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -18,12 +17,12 @@ import java.util.Properties;
 
 @Configuration
 @PropertySource("classpath:application.yaml")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class HubKafkaConfig {
     @Value("${kafka.constants.url}")
-    private String url;
+    private final String url;
     @Value("${kafka.constants.hub.topic}")
-    private String topic;
+    private final String topic;
 
     @Bean
     public HubProducer hubProducerConfig() {
