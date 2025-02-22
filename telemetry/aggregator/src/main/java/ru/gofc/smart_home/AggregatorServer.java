@@ -9,7 +9,7 @@ import ru.gofc.smart_home.snapshot.AggregatorStarter;
 public class AggregatorServer {
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(AggregatorServer.class, args);
-        
+
         AggregatorStarter aggregator = context.getBean(AggregatorStarter.class);
         aggregator.start();
     }
