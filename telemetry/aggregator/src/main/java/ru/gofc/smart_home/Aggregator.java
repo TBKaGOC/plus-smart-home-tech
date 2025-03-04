@@ -6,11 +6,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import ru.gofc.smart_home.snapshot.AggregatorStarter;
 
 @SpringBootApplication
-public class AggregatorServer {
+public class Aggregator {
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(AggregatorServer.class, args);
-        
-        AggregatorStarter aggregator = context.getBean(AggregatorStarter.class);
-        aggregator.start();
+        ConfigurableApplicationContext context = SpringApplication.run(Aggregator.class, args);
+
+        AggregatorStarter starter = context.getBean(AggregatorStarter.class);
+        starter.start();
     }
 }

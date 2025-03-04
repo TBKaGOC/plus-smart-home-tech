@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -23,10 +25,11 @@ public class SnapshotHandler {
 
     public SnapshotHandler(List<SensorHandler<? extends SpecificRecord>> handlers) {
         snapshots = new HashMap<>();
-        this.handlers = new HashMap<>();
-        for (SensorHandler<? extends SpecificRecord> handler: handlers) {
-            this.handlers.put(handler.getMessageType(), handler);
-        }
+        this.handlers = handlers.stream()
+                .collect(Collectors.toMap(
+                        SensorHandler::getMessageType,
+                        Function.identity()
+                ));
     }
 
     public Optional<SensorsSnapshotAvro> handleKafkaMessage(SensorEventAvro eventAvro) {

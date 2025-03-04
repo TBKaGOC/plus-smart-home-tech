@@ -15,18 +15,26 @@ public abstract class SensorHandler<T> {
         T event = (T) eventAvro.getPayload();
 
         Map<String, SensorStateAvro> states = snapshot.getSensorsState();
-        SensorStateAvro deviceSnapshot = states.get(eventAvro.getId());
-        T oldEvent = (T) deviceSnapshot.getData();
+        if (states.containsKey(eventAvro.getId())) {
+            SensorStateAvro deviceSnapshot = states.get(eventAvro.getId());
 
-        if (eventAvro.getTimestamp().isBefore(deviceSnapshot.getTimestamp())) {
-            return Optional.empty();
-        }
-        if (event.equals(oldEvent)) {
-            return Optional.empty();
+            T oldEvent = (T) deviceSnapshot.getData();
+
+            if (eventAvro.getTimestamp().isBefore(deviceSnapshot.getTimestamp())) {
+                return Optional.empty();
+            }
+            if (event.equals(oldEvent)) {
+                return Optional.empty();
+            }
+
+            deviceSnapshot.setData(event);
+            states.put(eventAvro.getId(), deviceSnapshot);
+        } else {
+            states.put(eventAvro.getId(), SensorStateAvro.newBuilder()
+                    .setTimestamp(eventAvro.getTimestamp())
+                    .setData(eventAvro).build());
         }
 
-        deviceSnapshot.setData(event);
-        states.put(eventAvro.getId(), deviceSnapshot);
         snapshot.setSensorsState(states);
         snapshot.setTimestamp(Instant.now());
 
