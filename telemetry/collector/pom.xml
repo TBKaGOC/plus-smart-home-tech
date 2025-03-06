@@ -29,9 +29,8 @@
         </dependency>
 
         <dependency>
-            <groupId>io.nity.grpc</groupId>
+            <groupId>net.devh</groupId>
             <artifactId>grpc-server-spring-boot-starter</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <dependency>
