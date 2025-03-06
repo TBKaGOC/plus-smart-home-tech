@@ -29,12 +29,13 @@ public class AggregatorStarter {
     public void start() {
         try {
             log.info("Получение данных");
+            while (true) {
+                ConsumerRecords<String, SensorEventAvro> records = consumer.poll(Duration.ofMillis(500));
 
-            ConsumerRecords<String, SensorEventAvro> records = consumer.poll(Duration.ofMillis(500));
-
-            for (ConsumerRecord<String, SensorEventAvro> record: records) {
-                Optional<SensorsSnapshotAvro> sensorsSnapshotAvro = handler.handleKafkaMessage(record.value());
-                sensorsSnapshotAvro.ifPresent(producer::sendMessage);
+                for (ConsumerRecord<String, SensorEventAvro> record : records) {
+                    Optional<SensorsSnapshotAvro> sensorsSnapshotAvro = handler.handleKafkaMessage(record.value());
+                    sensorsSnapshotAvro.ifPresent(producer::sendMessage);
+                }
             }
         } catch (WakeupException e) {
 
