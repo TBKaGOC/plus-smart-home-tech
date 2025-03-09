@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 
 @GrpcService
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
+public class CollectorController extends CollectorControllerGrpc.CollectorControllerImplBase {
     final Map<SensorEventProto.PayloadCase, SensorHandler> sensorEventHandlers;
     final Map<HubEventProto.PayloadCase, HubHandler> hubEventHandlers;
 
-    public EventController(Set<SensorHandler> sensorHandlers, Set<HubHandler> hubHandlers) {
+    public CollectorController(Set<SensorHandler> sensorHandlers, Set<HubHandler> hubHandlers) {
         sensorEventHandlers = sensorHandlers.stream()
                 .collect(Collectors.toMap(
                         SensorHandler::getMessageType,
