@@ -1,4 +1,4 @@
-package ru.gofc.smart_home;
+package ru.gofc.smart_home.controller;
 
 import com.google.protobuf.Empty;
 import io.grpc.Status;

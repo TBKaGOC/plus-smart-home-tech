@@ -31,7 +31,8 @@ public class ScenarioAddedHandler implements HubHandler {
 
         HubEventAvro eventAvro = HubEventAvro.newBuilder()
                 .setHubId(eventProto.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds()))
+                .setTimestamp(Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds(),
+                        eventProto.getTimestamp().getNanos()))
                 .setPayload(
                         ScenarioAddedEventAvro.newBuilder()
                                 .setName(scenarioAddedEventProto.getName())
@@ -53,12 +54,18 @@ public class ScenarioAddedHandler implements HubHandler {
     }
 
     private ScenarioConditionAvro mapScenarioCondition(ScenarioConditionProto scenarioConditionProto) {
-        return ScenarioConditionAvro.newBuilder()
+        ScenarioConditionAvro.Builder builder = ScenarioConditionAvro.newBuilder()
                 .setSensorId(scenarioConditionProto.getSensorId())
-                .setValue(scenarioConditionProto.getBoolValue())
                 .setOperation(ConditionOperationAvro.valueOf(scenarioConditionProto.getOperation().name()))
-                .setType(ConditionTypeAvro.valueOf(scenarioConditionProto.getType().name()))
-                .build();
+                .setType(ConditionTypeAvro.valueOf(scenarioConditionProto.getType().name()));
+
+        if (scenarioConditionProto.hasIntValue()) {
+            builder.setValue(scenarioConditionProto.getIntValue());
+        } else if (scenarioConditionProto.hasBoolValue()) {
+            builder.setValue(scenarioConditionProto.getBoolValue() ? 1 : 0);
+        }
+
+        return builder.build();
     }
 
     private DeviceActionAvro mapDeviceAction(DeviceActionProto deviceActionProto) {
