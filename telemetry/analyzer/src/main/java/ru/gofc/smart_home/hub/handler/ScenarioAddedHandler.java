@@ -92,11 +92,7 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 condition.setType(ConditionType.valueOf(scenarioCondition.getType().name()));
                 condition.setOperation(ConditionOperationType.valueOf(scenarioCondition.getOperation().name()));
                 condition.setConditionSource(source.get());
-                if (scenarioCondition.getValue() instanceof Boolean) {
-                    condition.setValue((boolean) scenarioCondition.getValue() ? 1 : 0);
-                } else {
-                    condition.setValue((int) scenarioCondition.getValue());
-                }
+                condition.setValue(scenarioCondition.getValue());
 
                 result.add(condition);
             }
