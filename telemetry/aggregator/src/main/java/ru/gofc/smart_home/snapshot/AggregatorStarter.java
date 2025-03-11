@@ -40,7 +40,7 @@ public class AggregatorStarter {
         } catch (WakeupException e) {
 
         } catch (Exception e) {
-            log.error("Сбой обработки события сенсора", e);
+            log.error("Сбой обработки события сенсора ", e);
         } finally {
             try {
                 producer.flush();

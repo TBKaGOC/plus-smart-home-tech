@@ -11,12 +11,14 @@ import java.util.Optional;
 public abstract class SensorHandler<T> {
     public abstract Class<T> getMessageType();
 
-    Optional<SensorsSnapshotAvro> handle(SensorEventAvro eventAvro, SensorsSnapshotAvro snapshot) {
+    Optional<Map<String, SensorStateAvro>> handle(SensorEventAvro eventAvro, SensorsSnapshotAvro snapshot) {
         T event = (T) eventAvro.getPayload();
 
         Map<String, SensorStateAvro> states = snapshot.getSensorsState();
-        if (states.containsKey(eventAvro.getId())) {
-            SensorStateAvro deviceSnapshot = states.get(eventAvro.getId());
+        SensorStateAvro deviceSnapshot;
+
+        if (!states.isEmpty() && states.containsKey(eventAvro.getId())) {
+            deviceSnapshot = states.get(eventAvro.getId());
 
             T oldEvent = (T) deviceSnapshot.getData();
 
@@ -26,18 +28,14 @@ public abstract class SensorHandler<T> {
             if (event.equals(oldEvent)) {
                 return Optional.empty();
             }
-
-            deviceSnapshot.setData(event);
-            states.put(eventAvro.getId(), deviceSnapshot);
         } else {
-            states.put(eventAvro.getId(), SensorStateAvro.newBuilder()
-                    .setTimestamp(eventAvro.getTimestamp())
-                    .setData(eventAvro).build());
+            deviceSnapshot = new SensorStateAvro();
         }
+        deviceSnapshot.setTimestamp(eventAvro.getTimestamp());
+        deviceSnapshot.setData(event);
 
-        snapshot.setSensorsState(states);
-        snapshot.setTimestamp(Instant.now());
+        states.put(eventAvro.getId(), deviceSnapshot);
 
-        return Optional.of(snapshot);
+        return Optional.of(states);
     }
 }

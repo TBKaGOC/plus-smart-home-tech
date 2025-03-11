@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecord;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
 import java.time.Instant;
@@ -50,12 +51,17 @@ public class SnapshotHandler {
         if (!handlers.containsKey(eventAvro.getPayload().getClass())) {
             return Optional.empty();
         } else {
-            Optional<SensorsSnapshotAvro> result = handlers.get(eventAvro.getPayload().getClass())
+            Optional<Map<String, SensorStateAvro>> result = handlers.get(eventAvro.getPayload().getClass())
                     .handle(eventAvro, snapshot);
 
-            result.ifPresent(sensorsSnapshotAvro -> snapshots.put(hubId, sensorsSnapshotAvro));
+            if (result.isPresent()) {
+                snapshot.setTimestamp(Instant.now());
+                snapshot.setSensorsState(result.get());
 
-            return result;
+               return Optional.of(snapshot);
+            } else {
+                return Optional.empty();
+            }
         }
     }
 }
