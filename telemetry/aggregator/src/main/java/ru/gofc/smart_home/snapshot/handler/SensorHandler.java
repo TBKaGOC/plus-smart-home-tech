@@ -12,27 +12,21 @@ public abstract class SensorHandler<T> {
     public abstract Class<T> getMessageType();
 
     Optional<Map<String, SensorStateAvro>> handle(SensorEventAvro eventAvro, SensorsSnapshotAvro snapshot) {
-        T event = (T) eventAvro.getPayload();
-
         Map<String, SensorStateAvro> states = snapshot.getSensorsState();
         SensorStateAvro deviceSnapshot;
 
         if (!states.isEmpty() && states.containsKey(eventAvro.getId())) {
             deviceSnapshot = states.get(eventAvro.getId());
 
-            T oldEvent = (T) deviceSnapshot.getData();
-
-            if (eventAvro.getTimestamp().isBefore(deviceSnapshot.getTimestamp())) {
-                return Optional.empty();
-            }
-            if (event.equals(oldEvent)) {
+            if (deviceSnapshot != null && (deviceSnapshot.getTimestamp().isAfter(eventAvro.getTimestamp())
+                    || deviceSnapshot.getData().equals(eventAvro.getPayload()))) {
                 return Optional.empty();
             }
         } else {
             deviceSnapshot = new SensorStateAvro();
         }
         deviceSnapshot.setTimestamp(eventAvro.getTimestamp());
-        deviceSnapshot.setData(event);
+        deviceSnapshot.setData(eventAvro.getPayload());
 
         states.put(eventAvro.getId(), deviceSnapshot);
 

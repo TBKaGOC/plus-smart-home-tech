@@ -46,6 +46,8 @@ public class SnapshotHandler {
                     .setTimestamp(Instant.now())
                     .setSensorsState(new HashMap<>())
                     .build();
+
+            snapshots.put(hubId, snapshot);
         }
 
         if (!handlers.containsKey(eventAvro.getPayload().getClass())) {
@@ -55,7 +57,6 @@ public class SnapshotHandler {
                     .handle(eventAvro, snapshot);
 
             if (result.isPresent()) {
-                snapshot.setTimestamp(Instant.now());
                 snapshot.setSensorsState(result.get());
 
                return Optional.of(snapshot);
