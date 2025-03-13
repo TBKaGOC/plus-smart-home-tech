@@ -28,18 +28,19 @@ public class HubEventProcessor implements Runnable {
         try {
             log.info("Получение данных");
 
-            ConsumerRecords<String, HubEventAvro> records = consumer.poll(Duration.ofMillis(500));
+            while (true) {
+                ConsumerRecords<String, HubEventAvro> records = consumer.poll(Duration.ofMillis(500));
 
-            for (ConsumerRecord<String, HubEventAvro> record : records) {
-                HubEventAvro value = record.value();
+                for (ConsumerRecord<String, HubEventAvro> record : records) {
+                    HubEventAvro value = record.value();
 
-                if (handlers.containsKey(value.getPayload().getClass())) {
-                    handlers.get(value.getClass()).handle(value);
-                } else {
-                    throw new IllegalArgumentException("Не найден обработчик " + value.getPayload().getClass());
+                    if (handlers.containsKey(value.getPayload().getClass())) {
+                        handlers.get(value.getPayload().getClass()).handle(value);
+                    } else {
+                        throw new IllegalArgumentException("Не найден обработчик " + value.getPayload().getClass());
+                    }
                 }
             }
-            log.info("Все данные обработаны");
         }  catch (Exception e) {
             log.error("Сбой обработки события", e);
         } finally {

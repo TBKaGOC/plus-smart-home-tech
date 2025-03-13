@@ -26,13 +26,13 @@ public class SnapshotProcessor implements Runnable {
         try {
             log.info("Получение данных");
 
-            ConsumerRecords<String, SensorsSnapshotAvro> records = consumer.poll(Duration.ofMillis(500));
+            while (true) {
+                ConsumerRecords<String, SensorsSnapshotAvro> records = consumer.poll(Duration.ofMillis(500));
 
-            for (ConsumerRecord<String, SensorsSnapshotAvro> record: records) {
-                handler.handle(record.value());
+                for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
+                    handler.handle(record.value());
+                }
             }
-
-            log.info("Все данные обработаны");
         }  catch (Exception e) {
             log.error("Сбой обработки события", e);
         } finally {

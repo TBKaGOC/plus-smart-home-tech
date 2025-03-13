@@ -20,6 +20,7 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
@@ -39,14 +40,16 @@ public class SnapshotHandler {
             boolean flag = true;
 
             for (Condition condition: scenario.getConditions()) {
-                List<Integer> values = condition.getType().cast(
+                Optional<List<Integer>> values = condition.getType().cast(
                         states.get(condition.getConditionSource().getId())
                 );
 
                 boolean innerFlag = false;
-                for (Integer value: values) {
-                    //Если хотя бы одно из значений удовлетворяет уловию, то всё условие будет выполнятся
-                    innerFlag = innerFlag || condition.getOperation().handle(condition.getValue(), value);
+                if (values.isPresent()) {
+                    for (Integer value : values.get()) {
+                        //Если хотя бы одно из значений удовлетворяет уловию, то всё условие будет выполнятся
+                        innerFlag = innerFlag || condition.getOperation().handle(condition.getValue(), value);
+                    }
                 }
 
                 //Только если все условия верны, сценарий будет активирован

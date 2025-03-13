@@ -15,16 +15,12 @@ import ru.gofc.smart_home.hub.model.enums.ActionType;
 public class Action {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
     @Column(nullable = false)
     ActionType type;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "action_value")
     Integer value;
     @ManyToOne(optional = false)
-    @JoinTable(
-            name = "scenario_actions",
-            joinColumns = @JoinColumn(name = "scenario_id"),
-            inverseJoinColumns = @JoinColumn(name = "sensor_id")
-    )
+    @JoinColumn(name = "sensor_id")
     Sensor actionPerformer;
 }

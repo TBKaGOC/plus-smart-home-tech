@@ -23,13 +23,9 @@ public class Condition {
     ConditionType type;
     @Column(nullable = false)
     ConditionOperationType operation;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "condition_value")
     Integer value;
     @ManyToOne(optional = false)
-    @JoinTable(
-            name = "scenario_conditions",
-            joinColumns = @JoinColumn(name = "scenario_id"),
-            inverseJoinColumns = @JoinColumn(name = "sensor_id")
-    )
+    @JoinColumn(name = "sensor_id")
     Sensor conditionSource;
 }

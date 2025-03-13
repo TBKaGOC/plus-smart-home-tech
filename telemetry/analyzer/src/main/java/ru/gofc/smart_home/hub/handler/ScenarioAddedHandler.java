@@ -13,6 +13,8 @@ import ru.gofc.smart_home.hub.model.Sensor;
 import ru.gofc.smart_home.hub.model.enums.ActionType;
 import ru.gofc.smart_home.hub.model.enums.ConditionOperationType;
 import ru.gofc.smart_home.hub.model.enums.ConditionType;
+import ru.gofc.smart_home.hub.repository.ActionRepository;
+import ru.gofc.smart_home.hub.repository.ConditionRepository;
 import ru.gofc.smart_home.hub.repository.ScenarioRepository;
 import ru.gofc.smart_home.hub.repository.SensorRepository;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceActionAvro;
@@ -31,6 +33,8 @@ import java.util.Optional;
 public class ScenarioAddedHandler implements HubEventHandler {
     final SensorRepository sensorRepository;
     final ScenarioRepository scenarioRepository;
+    final ActionRepository actionRepository;
+    final ConditionRepository conditionRepository;
 
     @Override
     public Class<? extends SpecificRecordBase> getType() {
@@ -44,6 +48,7 @@ public class ScenarioAddedHandler implements HubEventHandler {
             return;
         }
         log.info("Добавление сценария хаба " + hubEventAvro.getHubId());
+        log.debug("Добавление сценария " + hubEventAvro);
 
         Scenario scenario = mapToScenario(eventAvro, hubEventAvro.getHubId());
 
@@ -73,7 +78,6 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 action.setType(ActionType.valueOf(deviceAction.getType().name()));
                 action.setValue(deviceAction.getValue());
                 action.setActionPerformer(performer.get());
-
                 result.add(action);
             }
         }
@@ -91,9 +95,8 @@ public class ScenarioAddedHandler implements HubEventHandler {
                 Condition condition = new Condition();
                 condition.setType(ConditionType.valueOf(scenarioCondition.getType().name()));
                 condition.setOperation(ConditionOperationType.valueOf(scenarioCondition.getOperation().name()));
-                condition.setConditionSource(source.get());
                 condition.setValue(scenarioCondition.getValue());
-
+                condition.setConditionSource(source.get());
                 result.add(condition);
             }
         }
