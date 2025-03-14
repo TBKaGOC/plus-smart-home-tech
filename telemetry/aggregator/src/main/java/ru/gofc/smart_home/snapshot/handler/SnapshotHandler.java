@@ -56,13 +56,9 @@ public class SnapshotHandler {
             Optional<Map<String, SensorStateAvro>> result = handlers.get(eventAvro.getPayload().getClass())
                     .handle(eventAvro, snapshot);
 
-            if (result.isPresent()) {
-                snapshot.setSensorsState(result.get());
+            result.ifPresent(snapshot::setSensorsState);
 
-               return Optional.of(snapshot);
-            } else {
-                return Optional.empty();
-            }
+            return Optional.of(snapshot);
         }
     }
 }

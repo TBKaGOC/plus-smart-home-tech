@@ -2,6 +2,7 @@ package ru.gofc.smart_home.hub.model.enums;
 
 import ru.yandex.practicum.kafka.telemetry.event.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -9,73 +10,78 @@ import java.util.Optional;
 public enum ConditionType {
     MOTION {
         @Override
-        public Optional<List<Integer>> cast(SensorStateAvro state) {
-            if (state == null) return Optional.empty();
+        public List<Integer> cast(SensorStateAvro state) {
+            if (state == null) return new ArrayList<>();
             if (state.getData() instanceof MotionSensorAvro sensor) {
-                return Optional.of(Collections.singletonList(sensor.getMotion() ? 1 : 0));
+                return Collections.singletonList(sensor.getMotion() ? 1 : 0);
             } else {
-                throw new IllegalArgumentException("Переданная сущность не является MotionSensorAvro");
+                throw new IllegalArgumentException("Переданная сущность не является MotionSensorAvro " +
+                        state.getClass());
             }
         }
     },
     LUMINOSITY {
         @Override
-        public Optional<List<Integer>> cast(SensorStateAvro state) {
-            if (state == null) return Optional.empty();
+        public List<Integer> cast(SensorStateAvro state) {
+            if (state == null) return new ArrayList<>();
             if (state.getData() instanceof LightSensorAvro sensor) {
-                return Optional.of(Collections.singletonList(sensor.getLuminosity()));
+                return Collections.singletonList(sensor.getLuminosity());
             } else {
-                throw new IllegalArgumentException("Переданная сущность не является LightSensorAvro");
+                throw new IllegalArgumentException("Переданная сущность не является LightSensorAvro " +
+                        state.getClass());
             }
         }
     },
     SWITCH {
         @Override
-        public Optional<List<Integer>> cast(SensorStateAvro state) {
-            if (state == null) return Optional.empty();
+        public List<Integer> cast(SensorStateAvro state) {
+            if (state == null) return new ArrayList<>();
             if (state.getData() instanceof SwitchSensorAvro sensor) {
-                return Optional.of(Collections.singletonList(sensor.getState() ? 1 : 0));
+                return Collections.singletonList(sensor.getState() ? 1 : 0);
             } else {
-                throw new IllegalArgumentException("Переданная сущность не является SwitchSensorAvro");
+                throw new IllegalArgumentException("Переданная сущность не является SwitchSensorAvro " +
+                        state.getClass());
             }
         }
     },
     TEMPERATURE {
         @Override
-        public Optional<List<Integer>> cast(SensorStateAvro state) {
-            if (state == null) return Optional.empty();
+        public List<Integer> cast(SensorStateAvro state) {
+            if (state == null) return new ArrayList<>();
             if (state.getData() instanceof TemperatureSensorAvro sensor) {
-                return Optional.of(List.of(sensor.getTemperatureC(), sensor.getTemperatureF()));
+                return List.of(sensor.getTemperatureC(), sensor.getTemperatureF());
             } if (state.getData() instanceof ClimateSensorAvro sensor) {
-                return Optional.of(Collections.singletonList(sensor.getTemperatureC()));
+                return Collections.singletonList(sensor.getTemperatureC());
             } else {
                 throw new IllegalArgumentException("Переданная сущность не является TemperatureSensorAvro " +
-                        "или ClimateSensorAvro");
+                        "или ClimateSensorAvro " + state.getClass());
             }
         }
     },
     CO2LEVEL {
         @Override
-        public Optional<List<Integer>> cast(SensorStateAvro state) {
-            if (state == null) return Optional.empty();
+        public List<Integer> cast(SensorStateAvro state) {
+            if (state == null) return new ArrayList<>();
             if (state.getData() instanceof ClimateSensorAvro sensor) {
-                return Optional.of(Collections.singletonList(sensor.getCo2Level()));
+                return Collections.singletonList(sensor.getCo2Level());
             } else {
-                throw new IllegalArgumentException("Переданная сущность не является ClimateSensorAvro");
+                throw new IllegalArgumentException("Переданная сущность не является ClimateSensorAvro " +
+                        state.getClass());
             }
         }
     },
     HUMIDITY {
         @Override
-        public Optional<List<Integer>> cast(SensorStateAvro state) {
-            if (state == null) return Optional.empty();
+        public List<Integer> cast(SensorStateAvro state) {
+            if (state == null) return new ArrayList<>();
             if (state.getData() instanceof ClimateSensorAvro sensor) {
-                return Optional.of(Collections.singletonList(sensor.getHumidity()));
+                return Collections.singletonList(sensor.getHumidity());
             } else {
-                throw new IllegalArgumentException("Переданная сущность не является ClimateSensorAvro");
+                throw new IllegalArgumentException("Переданная сущность не является ClimateSensorAvro " +
+                        state.getClass());
             }
         }
     };
 
-    public abstract Optional<List<Integer>> cast(SensorStateAvro state);
+    public abstract List<Integer> cast(SensorStateAvro state);
 }

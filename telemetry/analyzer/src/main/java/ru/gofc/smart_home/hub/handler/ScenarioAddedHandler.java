@@ -30,31 +30,29 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class ScenarioAddedHandler implements HubEventHandler {
+public class ScenarioAddedHandler extends HubEventHandler<ScenarioAddedEventAvro> {
     final SensorRepository sensorRepository;
     final ScenarioRepository scenarioRepository;
-    final ActionRepository actionRepository;
-    final ConditionRepository conditionRepository;
 
     @Override
-    public Class<? extends SpecificRecordBase> getType() {
+    public Class<ScenarioAddedEventAvro> getType() {
         return ScenarioAddedEventAvro.class;
     }
 
     @Override
     public void handle(HubEventAvro hubEventAvro) {
-        if (!(hubEventAvro.getPayload() instanceof ScenarioAddedEventAvro eventAvro)) {
-            log.warn("Полученная сущность не является ScenarioAddedEventAvro");
-            return;
+        ScenarioAddedEventAvro eventAvro = instance(hubEventAvro.getPayload(), ScenarioAddedEventAvro.class);
+
+        if (eventAvro != null) {
+            log.info("Добавление сценария хаба " + hubEventAvro.getHubId());
+            log.debug("Добавление сценария " + hubEventAvro);
+
+            Scenario scenario = mapToScenario(eventAvro, hubEventAvro.getHubId());
+
+            scenarioRepository.save(scenario);
+
+            log.info("Добавлен сценарий хаба " + hubEventAvro.getHubId());
         }
-        log.info("Добавление сценария хаба " + hubEventAvro.getHubId());
-        log.debug("Добавление сценария " + hubEventAvro);
-
-        Scenario scenario = mapToScenario(eventAvro, hubEventAvro.getHubId());
-
-        scenarioRepository.save(scenario);
-
-        log.info("Добавлен сценарий хаба " + hubEventAvro.getHubId());
     }
 
     private Scenario mapToScenario(ScenarioAddedEventAvro eventAvro, String hubId) {
@@ -71,13 +69,13 @@ public class ScenarioAddedHandler implements HubEventHandler {
         List<Action> result = new ArrayList<>();
 
         for (DeviceActionAvro deviceAction: actions) {
-            Optional<Sensor> performer = sensorRepository.findByIdAndHubId(deviceAction.getSensorId(), hubId);
+            Sensor performer = sensorRepository.findByIdAndHubId(deviceAction.getSensorId(), hubId).orElse(null);
 
-            if (performer.isPresent()) {
+            if (performer != null) {
                 Action action = new Action();
                 action.setType(ActionType.valueOf(deviceAction.getType().name()));
                 action.setValue(deviceAction.getValue());
-                action.setActionPerformer(performer.get());
+                action.setActionPerformer(performer);
                 result.add(action);
             }
         }
@@ -89,14 +87,14 @@ public class ScenarioAddedHandler implements HubEventHandler {
         List<Condition> result = new ArrayList<>();
 
         for (ScenarioConditionAvro scenarioCondition: conditions) {
-            Optional<Sensor> source = sensorRepository.findByIdAndHubId(scenarioCondition.getSensorId(), hubId);
+            Sensor source = sensorRepository.findByIdAndHubId(scenarioCondition.getSensorId(), hubId).orElse(null);
 
-            if (source.isPresent()) {
+            if (source != null) {
                 Condition condition = new Condition();
                 condition.setType(ConditionType.valueOf(scenarioCondition.getType().name()));
                 condition.setOperation(ConditionOperationType.valueOf(scenarioCondition.getOperation().name()));
                 condition.setValue(scenarioCondition.getValue());
-                condition.setConditionSource(source.get());
+                condition.setConditionSource(source);
                 result.add(condition);
             }
         }

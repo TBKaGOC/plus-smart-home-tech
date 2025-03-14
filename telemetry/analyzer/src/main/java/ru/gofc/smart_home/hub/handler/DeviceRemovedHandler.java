@@ -14,23 +14,23 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class DeviceRemovedHandler implements HubEventHandler {
+public class DeviceRemovedHandler extends HubEventHandler<DeviceRemovedEventAvro> {
     final SensorRepository repository;
     @Override
-    public Class<? extends SpecificRecordBase> getType() {
+    public Class<DeviceRemovedEventAvro> getType() {
         return DeviceRemovedEventAvro.class;
     }
 
     @Override
     public void handle(HubEventAvro hubEventAvro) {
-        if (!(hubEventAvro.getPayload() instanceof  DeviceRemovedEventAvro eventAvro)) {
-            log.warn("Полученная сущность не является DeviceRemovedEventAvro");
-            return;
+        DeviceRemovedEventAvro eventAvro = instance(hubEventAvro.getPayload(), DeviceRemovedEventAvro.class);
+
+        if (eventAvro != null) {
+            log.info("Удаление датчика " + eventAvro.getId());
+
+            repository.deleteById(eventAvro.getId());
+
+            log.info("Удалён датчик " + eventAvro.getId());
         }
-        log.info("Удаление датчика " + eventAvro.getId());
-
-        repository.deleteById(eventAvro.getId());
-
-        log.info("Удалён датчик " + eventAvro.getId());
     }
 }

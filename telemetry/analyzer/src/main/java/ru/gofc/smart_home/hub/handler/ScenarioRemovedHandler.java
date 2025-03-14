@@ -14,24 +14,24 @@ import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class ScenarioRemovedHandler implements HubEventHandler {
+public class ScenarioRemovedHandler extends HubEventHandler<ScenarioRemovedEventAvro> {
     final ScenarioRepository repository;
 
     @Override
-    public Class<? extends SpecificRecordBase> getType() {
+    public Class<ScenarioRemovedEventAvro> getType() {
         return ScenarioRemovedEventAvro.class;
     }
 
     @Override
     public void handle(HubEventAvro hubEventAvro) {
-        if (!(hubEventAvro.getPayload() instanceof ScenarioRemovedEventAvro eventAvro)) {
-            log.warn("Полученная сущность не является ScenarioRemovedEventAvro");
-            return;
+        ScenarioRemovedEventAvro eventAvro = instance(hubEventAvro.getPayload(), ScenarioRemovedEventAvro.class);
+
+        if (eventAvro != null) {
+            log.info("Удаление сценария хаба " + hubEventAvro.getHubId());
+
+            repository.deleteByHubIdAndName(hubEventAvro.getHubId(), eventAvro.getName());
+
+            log.info("Удалён сценарий хаба " + hubEventAvro.getHubId());
         }
-        log.info("Удаление сценария хаба " + hubEventAvro.getHubId());
-
-        repository.deleteByHubIdAndName(hubEventAvro.getHubId(), eventAvro.getName());
-
-        log.info("Удалён сценарий хаба " + hubEventAvro.getHubId());
     }
 }
