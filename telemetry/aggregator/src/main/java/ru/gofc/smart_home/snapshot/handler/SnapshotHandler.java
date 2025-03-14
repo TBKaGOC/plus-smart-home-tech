@@ -53,11 +53,14 @@ public class SnapshotHandler {
         if (!handlers.containsKey(eventAvro.getPayload().getClass())) {
             return Optional.empty();
         } else {
-            Optional<Map<String, SensorStateAvro>> result = handlers.get(eventAvro.getPayload().getClass())
-                    .handle(eventAvro, snapshot);
+            Map<String, SensorStateAvro> result = handlers.get(eventAvro.getPayload().getClass())
+                    .handle(eventAvro, snapshot).orElse(null);
 
-            result.ifPresent(snapshot::setSensorsState);
+            if (result == null) {
+                return Optional.empty();
+            }
 
+            snapshot.setSensorsState(result);
             return Optional.of(snapshot);
         }
     }
