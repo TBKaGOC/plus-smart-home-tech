@@ -9,6 +9,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.VoidDeserializer;
 import org.apache.kafka.common.serialization.VoidSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -23,17 +24,16 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import java.util.List;
 import java.util.Properties;
 
-@Configuration
-@PropertySource("classpath:application.yaml")
+@ConfigurationProperties("kafka.constants")
 public class SnapshotKafkaConfig {
     private final String url;
     private final String readTopic;
     private final String writeTopic;
 
     public SnapshotKafkaConfig(
-            @Value("${kafka.constants.url}") String url,
-            @Value("${kafka.constants.sensor.topic}") String readTopic,
-            @Value("${kafka.constants.snapshot.topic}") String writeTopic
+            @Value("${url}") String url,
+            @Value("${sensor.topic}") String readTopic,
+            @Value("${snapshot.topic}") String writeTopic
     ) {
         this.url = url;
         this.readTopic = readTopic;

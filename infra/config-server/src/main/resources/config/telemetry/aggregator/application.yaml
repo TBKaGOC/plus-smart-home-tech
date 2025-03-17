@@ -1,0 +1,5 @@
+kafka.constants:
+  url: "localhost:9092"
+  sensor.topic: "telemetry.sensors.v1"
+  snapshot.topic: "telemetry.snapshots.v1"
+logging.level.ru.gofc.smart_home: "DEBUG"

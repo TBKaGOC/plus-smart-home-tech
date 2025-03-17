@@ -7,6 +7,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.VoidDeserializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ru.gofc.smart_home.hub.HubEventProcessor;
@@ -18,14 +19,14 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Configuration
+@ConfigurationProperties("kafka.constants")
 public class HubEventConfig {
     private final String url;
     private final String topic;
 
     public HubEventConfig(
-            @Value("${kafka.constants.url}") String url,
-            @Value("${kafka.constants.hub.topic}") String topic
+            @Value("${url}") String url,
+            @Value("${hub.topic}") String topic
     ) {
         this.url = url;
         this.topic = topic;
