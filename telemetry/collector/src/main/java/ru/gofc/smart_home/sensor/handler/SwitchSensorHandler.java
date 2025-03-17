@@ -30,7 +30,8 @@ public class SwitchSensorHandler implements SensorHandler {
         SensorEventAvro eventAvro = SensorEventAvro.newBuilder()
                 .setId(eventProto.getId())
                 .setHubId(eventProto.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds()))
+                .setTimestamp(Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds(),
+                        eventProto.getTimestamp().getNanos()))
                 .setPayload(SwitchSensorAvro.newBuilder()
                         .setState(switchSensorProto.getState())
                         .build()

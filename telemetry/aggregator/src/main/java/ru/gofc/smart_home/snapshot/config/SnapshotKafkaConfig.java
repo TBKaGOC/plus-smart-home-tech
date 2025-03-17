@@ -1,6 +1,5 @@
 package ru.gofc.smart_home.snapshot.config;
 
-import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -26,14 +25,20 @@ import java.util.Properties;
 
 @Configuration
 @PropertySource("classpath:application.yaml")
-@AllArgsConstructor
 public class SnapshotKafkaConfig {
-    @Value("${kafka.constants.url}")
     private final String url;
-    @Value("${kafka.constants.sensor.topic}")
     private final String readTopic;
-    @Value("${kafka.constants.snapshot.topic}")
     private final String writeTopic;
+
+    public SnapshotKafkaConfig(
+            @Value("${kafka.constants.url}") String url,
+            @Value("${kafka.constants.sensor.topic}") String readTopic,
+            @Value("${kafka.constants.snapshot.topic}") String writeTopic
+    ) {
+        this.url = url;
+        this.readTopic = readTopic;
+        this.writeTopic = writeTopic;
+    }
 
     @Bean
     public AggregatorStarter aggregatorStarter(SnapshotProducer producer, SnapshotHandler handler) {

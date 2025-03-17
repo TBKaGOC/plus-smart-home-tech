@@ -1,12 +1,12 @@
-package ru.gofc.smart_home;
+package ru.gofc.smart_home.controller;
 
 import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.nity.grpc.server.GrpcService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import net.devh.boot.grpc.server.service.GrpcService;
 import ru.gofc.smart_home.hub.handler.HubHandler;
 import ru.gofc.smart_home.sensor.handler.SensorHandler;
 import ru.yandex.practicum.grpc.telemetry.controller.CollectorControllerGrpc;
@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 
 @GrpcService
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
+public class CollectorController extends CollectorControllerGrpc.CollectorControllerImplBase {
     final Map<SensorEventProto.PayloadCase, SensorHandler> sensorEventHandlers;
     final Map<HubEventProto.PayloadCase, HubHandler> hubEventHandlers;
 
-    public EventController(Set<SensorHandler> sensorHandlers, Set<HubHandler> hubHandlers) {
+    public CollectorController(Set<SensorHandler> sensorHandlers, Set<HubHandler> hubHandlers) {
         sensorEventHandlers = sensorHandlers.stream()
                 .collect(Collectors.toMap(
                         SensorHandler::getMessageType,

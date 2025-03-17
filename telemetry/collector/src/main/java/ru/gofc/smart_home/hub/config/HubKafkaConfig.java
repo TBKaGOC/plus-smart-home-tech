@@ -16,13 +16,19 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import java.util.Properties;
 
 @Configuration
-@PropertySource("classpath:application.yaml")
-@AllArgsConstructor
 public class HubKafkaConfig {
-    @Value("${kafka.constants.url}")
+
     private final String url;
-    @Value("${kafka.constants.hub.topic}")
+
     private final String topic;
+
+    public HubKafkaConfig(
+            @Value("${kafka.constants.url}") String url,
+            @Value("${kafka.constants.hub.topic}") String topic
+    ) {
+        this.url = url;
+        this.topic = topic;
+    }
 
     @Bean
     public HubProducer hubProducerConfig() {

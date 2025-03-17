@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecord;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
 import java.time.Instant;
@@ -13,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -23,10 +26,11 @@ public class SnapshotHandler {
 
     public SnapshotHandler(List<SensorHandler<? extends SpecificRecord>> handlers) {
         snapshots = new HashMap<>();
-        this.handlers = new HashMap<>();
-        for (SensorHandler<? extends SpecificRecord> handler: handlers) {
-            this.handlers.put(handler.getMessageType(), handler);
-        }
+        this.handlers = handlers.stream()
+                .collect(Collectors.toMap(
+                        SensorHandler::getMessageType,
+                        Function.identity()
+                ));
     }
 
     public Optional<SensorsSnapshotAvro> handleKafkaMessage(SensorEventAvro eventAvro) {
@@ -42,17 +46,22 @@ public class SnapshotHandler {
                     .setTimestamp(Instant.now())
                     .setSensorsState(new HashMap<>())
                     .build();
+
+            snapshots.put(hubId, snapshot);
         }
 
         if (!handlers.containsKey(eventAvro.getPayload().getClass())) {
             return Optional.empty();
         } else {
-            Optional<SensorsSnapshotAvro> result = handlers.get(eventAvro.getPayload().getClass())
-                    .handle(eventAvro, snapshot);
+            Map<String, SensorStateAvro> result = handlers.get(eventAvro.getPayload().getClass())
+                    .handle(eventAvro, snapshot).orElse(null);
 
-            result.ifPresent(sensorsSnapshotAvro -> snapshots.put(hubId, sensorsSnapshotAvro));
+            if (result == null) {
+                return Optional.empty();
+            }
 
-            return result;
+            snapshot.setSensorsState(result);
+            return Optional.of(snapshot);
         }
     }
 }

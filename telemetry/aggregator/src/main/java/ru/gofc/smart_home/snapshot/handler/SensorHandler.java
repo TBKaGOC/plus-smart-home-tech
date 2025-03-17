@@ -11,25 +11,25 @@ import java.util.Optional;
 public abstract class SensorHandler<T> {
     public abstract Class<T> getMessageType();
 
-    Optional<SensorsSnapshotAvro> handle(SensorEventAvro eventAvro, SensorsSnapshotAvro snapshot) {
-        T event = (T) eventAvro.getPayload();
-
+    Optional<Map<String, SensorStateAvro>> handle(SensorEventAvro eventAvro, SensorsSnapshotAvro snapshot) {
         Map<String, SensorStateAvro> states = snapshot.getSensorsState();
-        SensorStateAvro deviceSnapshot = states.get(eventAvro.getId());
-        T oldEvent = (T) deviceSnapshot.getData();
+        SensorStateAvro deviceSnapshot;
 
-        if (eventAvro.getTimestamp().isBefore(deviceSnapshot.getTimestamp())) {
-            return Optional.empty();
-        }
-        if (event.equals(oldEvent)) {
-            return Optional.empty();
-        }
+        if (!states.isEmpty() && states.containsKey(eventAvro.getId())) {
+            deviceSnapshot = states.get(eventAvro.getId());
 
-        deviceSnapshot.setData(event);
+            if (deviceSnapshot != null && (deviceSnapshot.getTimestamp().isAfter(eventAvro.getTimestamp())
+                    || deviceSnapshot.getData().equals(eventAvro.getPayload()))) {
+                return Optional.empty();
+            }
+        } else {
+            deviceSnapshot = new SensorStateAvro();
+        }
+        deviceSnapshot.setTimestamp(eventAvro.getTimestamp());
+        deviceSnapshot.setData(eventAvro.getPayload());
+
         states.put(eventAvro.getId(), deviceSnapshot);
-        snapshot.setSensorsState(states);
-        snapshot.setTimestamp(Instant.now());
 
-        return Optional.of(snapshot);
+        return Optional.of(states);
     }
 }

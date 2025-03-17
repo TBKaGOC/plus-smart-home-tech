@@ -30,7 +30,8 @@ public class DeviceAddedHandler implements HubHandler {
 
         HubEventAvro eventAvro = HubEventAvro.newBuilder()
                 .setHubId(eventProto.getHubId())
-                .setTimestamp(Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds()))
+                .setTimestamp(Instant.ofEpochSecond(eventProto.getTimestamp().getSeconds(),
+                        eventProto.getTimestamp().getNanos()))
                 .setPayload(
                         DeviceAddedEventAvro.newBuilder()
                                 .setId(deviceAddedEventProto.getId())

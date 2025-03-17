@@ -4,7 +4,7 @@ protocol SensorsSnapshotProtocol {
 
   // Схема снапшота
     record SensorsSnapshotAvro {
-        string hubId;                      // идентификатор хаба
+        string hub_id;                      // идентификатор хаба
         timestamp_ms timestamp;            // метка времени снимка
         map<SensorStateAvro> sensorsState; // набор состояний, где ключ - id устройства
     }
