@@ -1,0 +1,20 @@
+server.port: 0
+spring:
+  jpa:
+    properties.hibernate.format-sql: true
+    hibernate:
+      ddl-auto: none
+    database: POStGRE
+    show-sql: true
+  sql:
+    init:
+      mode: always
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/shopping-store
+    #url: jdbc:h2:file:./db/shop
+    username: shop
+    password: shop
