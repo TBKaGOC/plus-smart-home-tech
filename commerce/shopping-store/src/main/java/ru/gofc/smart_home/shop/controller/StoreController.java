@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import ru.gofc.smart_home.shop.dto.ProductDto;
-import ru.gofc.smart_home.shop.dto.SetProductQuantityStateRequest;
+import ru.gofc.smart_home.shop.request.SetProductQuantityStateRequest;
 import ru.gofc.smart_home.shop.dto.enums.ProductCategory;
 import ru.gofc.smart_home.shop.exception.ProductNotFoundException;
 import ru.gofc.smart_home.shop.service.ProductService;
