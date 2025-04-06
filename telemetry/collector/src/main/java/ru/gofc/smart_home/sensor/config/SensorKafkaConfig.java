@@ -1,6 +1,6 @@
 package ru.gofc.smart_home.sensor.config;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -8,8 +8,6 @@ import org.apache.kafka.common.serialization.VoidSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.gofc.smart_home.sensor.kafka.SensorProducer;
 import ru.gofc.smart_home.sensor.kafka.SensorEventSerializer;
@@ -17,12 +15,15 @@ import ru.gofc.smart_home.sensor.kafka.SensorEventSerializer;
 import java.util.Properties;
 
 @ConfigurationProperties("kafka.constants")
-@RequiredArgsConstructor
 public class SensorKafkaConfig {
-    @Value("${url}")
     private String url;
-    @Value("${sensor.topic}")
     private String topic;
+
+    public SensorKafkaConfig(@Value("${url}") String url,
+                             @Value("${sensor.topic}") String topic) {
+        this.url = url;
+        this.topic = topic;
+    }
 
     @Bean
     public SensorProducer sensorProducerConfig() {
