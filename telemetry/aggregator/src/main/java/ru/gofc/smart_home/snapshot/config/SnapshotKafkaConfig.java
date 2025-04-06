@@ -1,5 +1,8 @@
 package ru.gofc.smart_home.snapshot.config;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -25,20 +28,11 @@ import java.util.List;
 import java.util.Properties;
 
 @ConfigurationProperties("kafka.constants")
+@AllArgsConstructor
 public class SnapshotKafkaConfig {
     private final String url;
-    private final String readTopic;
-    private final String writeTopic;
-
-    public SnapshotKafkaConfig(
-            @Value("${url}") String url,
-            @Value("${sensor.topic}") String readTopic,
-            @Value("${snapshot.topic}") String writeTopic
-    ) {
-        this.url = url;
-        this.readTopic = readTopic;
-        this.writeTopic = writeTopic;
-    }
+    private final Topic sensor;
+    private final Topic snapshot;
 
     @Bean
     public AggregatorStarter aggregatorStarter(SnapshotProducer producer, SnapshotHandler handler) {
@@ -51,7 +45,7 @@ public class SnapshotKafkaConfig {
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SensorAvroDeserializer.class);
 
         Consumer<String, SensorEventAvro> consumer = new KafkaConsumer<>(properties);
-        consumer.subscribe(List.of(readTopic));
+        consumer.subscribe(List.of(sensor.getTopic()));
 
         return new AggregatorStarter(consumer, producer, handler);
     }
@@ -65,6 +59,13 @@ public class SnapshotKafkaConfig {
 
         Producer<String, SensorsSnapshotAvro> producer = new KafkaProducer<>(properties);
 
-        return new SnapshotProducer(producer, writeTopic);
+        return new SnapshotProducer(producer, snapshot.getTopic());
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    private static class Topic {
+        private String topic;
     }
 }

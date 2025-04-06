@@ -1,5 +1,8 @@
 package ru.gofc.smart_home.hub.config;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -14,19 +17,12 @@ import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import java.util.Properties;
 
 @ConfigurationProperties("kafka.constants")
+@AllArgsConstructor
 public class HubKafkaConfig {
 
     private final String url;
 
-    private final String topic;
-
-    public HubKafkaConfig(
-            @Value("${url}") String url,
-            @Value("${hub.topic}") String topic
-    ) {
-        this.url = url;
-        this.topic = topic;
-    }
+    private final Topic hub;
 
     @Bean
     public HubProducer hubProducerConfig() {
@@ -37,6 +33,13 @@ public class HubKafkaConfig {
 
         Producer<String, HubEventAvro> producer = new KafkaProducer<>(properties);
 
-        return new HubProducer(producer, topic);
+        return new HubProducer(producer, hub.getTopic());
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    private static class Topic {
+        private String topic;
     }
 }

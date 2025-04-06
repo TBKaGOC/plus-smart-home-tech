@@ -1,6 +1,8 @@
 package ru.gofc.smart_home.sensor.config;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -15,15 +17,10 @@ import ru.gofc.smart_home.sensor.kafka.SensorEventSerializer;
 import java.util.Properties;
 
 @ConfigurationProperties("kafka.constants")
+@AllArgsConstructor
 public class SensorKafkaConfig {
     private String url;
-    private String topic;
-
-    public SensorKafkaConfig(@Value("${url}") String url,
-                             @Value("${sensor.topic}") String topic) {
-        this.url = url;
-        this.topic = topic;
-    }
+    private Topic sensor;
 
     @Bean
     public SensorProducer sensorProducerConfig() {
@@ -34,6 +31,13 @@ public class SensorKafkaConfig {
 
         Producer<String, SensorEventAvro> producer = new KafkaProducer<>(properties);
 
-        return new SensorProducer(producer, topic);
+        return new SensorProducer(producer, sensor.getTopic());
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    private static class Topic {
+       private String topic;
     }
 }

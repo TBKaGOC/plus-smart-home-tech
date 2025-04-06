@@ -1,6 +1,8 @@
 package ru.gofc.smart_home.hub.config;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -20,17 +22,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ConfigurationProperties("kafka.constants")
+@AllArgsConstructor
 public class HubEventConfig {
     private final String url;
-    private final String topic;
-
-    public HubEventConfig(
-            @Value("${url}") String url,
-            @Value("${hub.topic}") String topic
-    ) {
-        this.url = url;
-        this.topic = topic;
-    }
+    private final Topic hub;
 
     @Bean
     public HubEventProcessor hubEventProcessor(Set<HubEventHandler> handlers) {
@@ -43,7 +38,7 @@ public class HubEventConfig {
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, HubEventDeserializer.class);
 
         Consumer<String, HubEventAvro> consumer = new KafkaConsumer<>(properties);
-        consumer.subscribe(List.of(topic));
+        consumer.subscribe(List.of(hub.getTopic()));
 
         return new HubEventProcessor(getHandlers(handlers), consumer);
     }
@@ -54,5 +49,12 @@ public class HubEventConfig {
                         HubEventHandler::getType,
                         Function.identity()
                 ));
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    private static class Topic {
+        private String topic;
     }
 }

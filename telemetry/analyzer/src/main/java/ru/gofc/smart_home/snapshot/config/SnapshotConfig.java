@@ -1,6 +1,8 @@
 package ru.gofc.smart_home.snapshot.config;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -19,17 +21,10 @@ import java.util.List;
 import java.util.Properties;
 
 @ConfigurationProperties("kafka.constants")
+@AllArgsConstructor
 public class SnapshotConfig {
     private final String url;
-    private final String topic;
-
-    public SnapshotConfig(
-            @Value("${url}") String url,
-            @Value("${snapshot.topic}") String topic
-    ) {
-        this.url = url;
-        this.topic = topic;
-    }
+    private final Topic snapshot;
 
     @Bean
     public SnapshotProcessor snapshotProcessor(SnapshotHandler handler) {
@@ -42,8 +37,15 @@ public class SnapshotConfig {
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SnapshotAvroDeserializer.class);
 
         Consumer<String, SensorsSnapshotAvro> consumer = new KafkaConsumer<>(properties);
-        consumer.subscribe(List.of(topic));
+        consumer.subscribe(List.of(snapshot.getTopic()));
 
         return new SnapshotProcessor(consumer, handler);
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    private static class Topic {
+        private String topic;
     }
 }
