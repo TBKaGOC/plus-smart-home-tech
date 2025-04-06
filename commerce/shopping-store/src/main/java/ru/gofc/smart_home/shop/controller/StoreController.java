@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import ru.gofc.smart_home.shop.api.StoreInterface;
 import ru.gofc.smart_home.shop.dto.ProductDto;
 import ru.gofc.smart_home.shop.request.SetProductQuantityStateRequest;
 import ru.gofc.smart_home.shop.dto.enums.ProductCategory;
@@ -14,39 +15,32 @@ import ru.gofc.smart_home.shop.service.ProductService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/shopping-store")
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class StoreController {
+public class StoreController implements StoreInterface {
     final ProductService service;
 
-    @GetMapping
-    public List<ProductDto> findProductByCategory(@RequestBody ProductCategory category) {
+    public List<ProductDto> findProductByCategory(ProductCategory category) {
         return service.findProductByCategory(category);
     }
 
-    @PutMapping
-    public ProductDto saveProduct(@RequestBody @Valid ProductDto dto) {
+    public ProductDto saveProduct(@Valid ProductDto dto) {
         return service.saveProduct(dto);
     }
 
-    @PostMapping
-    public ProductDto updateProduct(@RequestBody ProductDto dto) throws ProductNotFoundException {
+    public ProductDto updateProduct(ProductDto dto) throws ProductNotFoundException {
         return service.updateProduct(dto);
     }
 
-    @PostMapping("/removeProductFromStore")
-    public boolean removeProduct(@RequestBody String id) throws ProductNotFoundException {
+    public boolean removeProduct(String id) throws ProductNotFoundException {
         return service.removeProduct(id);
     }
 
-    @PostMapping("/quantityState")
-    public boolean setProductQuantity(@RequestBody @Valid SetProductQuantityStateRequest request) throws ProductNotFoundException {
+    public boolean setProductQuantity(@Valid SetProductQuantityStateRequest request) throws ProductNotFoundException {
         return service.setProductQuantity(request);
     }
 
-    @GetMapping("/{productId}")
-    public ProductDto getProduct(@PathVariable String productId) throws ProductNotFoundException {
+    public ProductDto getProduct(String productId) throws ProductNotFoundException {
         return service.getProduct(productId);
     }
 }

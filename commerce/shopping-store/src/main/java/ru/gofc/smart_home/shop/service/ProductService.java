@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.gofc.smart_home.shop.dto.ProductDto;
 import ru.gofc.smart_home.shop.request.SetProductQuantityStateRequest;
 import ru.gofc.smart_home.shop.dto.enums.ProductCategory;
@@ -32,6 +33,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public ProductDto saveProduct(ProductDto dto) {
         log.info("Сохранение продукта " + dto.getProductId());
         log.debug("Сохранение продукта " + dto);
@@ -40,6 +42,7 @@ public class ProductService {
         return ProductMapper.mapToProductDto(repository.save(ProductMapper.mapToProduct(dto)));
     }
 
+    @Transactional
     public ProductDto updateProduct(ProductDto dto) throws ProductNotFoundException {
         log.info("Обновление продукта " + dto.getProductId());
         log.debug("Обновление продукта " + dto);
@@ -61,6 +64,7 @@ public class ProductService {
         return ProductMapper.mapToProductDto(repository.save(newProduct));
     }
 
+    @Transactional
     public boolean removeProduct(String id) throws ProductNotFoundException {
         log.info("Удаление продукта " + id);
 
@@ -74,6 +78,7 @@ public class ProductService {
         return true;
     }
 
+    @Transactional
     public boolean setProductQuantity(SetProductQuantityStateRequest request) throws ProductNotFoundException {
         log.info("Обновление количества продукта " + request.getProductId());
 

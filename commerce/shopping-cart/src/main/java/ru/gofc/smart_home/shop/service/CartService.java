@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.gofc.smart_home.shop.client.StoreClient;
 import ru.gofc.smart_home.shop.client.WarehouseClient;
 import ru.gofc.smart_home.shop.exception.*;
@@ -33,6 +34,8 @@ public class CartService {
 
         return CartMapper.mapToDto(getOwnerCart(owner));
     }
+
+    @Transactional
     public ShoppingCartDto saveProduct(String owner, Map<String, Integer> product) throws NotAuthorizedUserException, CartNotActiveException, ProductInShoppingCartLowQuantityInWarehouse {
         validOwner(owner);
         log.info("Добавление продукта в корзину пользователя " + owner);
@@ -52,6 +55,7 @@ public class CartService {
         }
     }
 
+    @Transactional
     public void deactivateCart(String owner) throws NotAuthorizedUserException {
         validOwner(owner);
         log.info("Деактивация корзины пользователя " + owner);
@@ -62,6 +66,7 @@ public class CartService {
         repository.save(cart);
     }
 
+    @Transactional
     public ShoppingCartDto removeProducts(String owner, Map<String, Integer> productsMap) throws NotAuthorizedUserException, NoProductsInShoppingCartException {
         validOwner(owner);
         log.info("Удаление продуктов из корзины пользователя " + owner);
@@ -80,6 +85,7 @@ public class CartService {
         return CartMapper.mapToDto(cart);
     }
 
+    @Transactional
     public ProductDto changeQuantity(String owner, ChangeProductQuantityRequest request) throws NotAuthorizedUserException, NoProductsInShoppingCartException, ProductNotFoundException, ProductInShoppingCartLowQuantityInWarehouse {
         validOwner(owner);
         log.info("Изменение количества продукта " + request.getProductId() + " в корзине пользователя " + owner);

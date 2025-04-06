@@ -5,13 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.gofc.smart_home.shop.client.WarehouseStoreClient;
+import org.springframework.transaction.annotation.Transactional;
+import ru.gofc.smart_home.shop.client.StoreClient;
 import ru.gofc.smart_home.shop.dto.AddressDto;
 import ru.gofc.smart_home.shop.dto.BookedProductsDto;
 import ru.gofc.smart_home.shop.dto.ShoppingCartDto;
 import ru.gofc.smart_home.shop.dto.enums.QuantityState;
 import ru.gofc.smart_home.shop.exception.NoSpecifiedProductInWarehouseException;
 import ru.gofc.smart_home.shop.exception.ProductInShoppingCartLowQuantityInWarehouse;
+import ru.gofc.smart_home.shop.exception.ProductNotFoundException;
 import ru.gofc.smart_home.shop.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.gofc.smart_home.shop.mapper.WarehouseMapper;
 import ru.gofc.smart_home.shop.model.WarehouseProduct;
@@ -30,12 +32,13 @@ import java.util.Random;
 @Slf4j
 public class WarehouseService {
     final WarehouseRepository repository;
-    final WarehouseStoreClient client;
+    final StoreClient client;
     static final String[] ADDRESSES =
             new String[] {"ADDRESS_1", "ADDRESS_2"};
     static final String CURRENT_ADDRESS =
             ADDRESSES[Random.from(new SecureRandom()).nextInt(0, 1)];
 
+    @Transactional
     public void saveProduct(NewProductInWarehouseRequest request) throws SpecifiedProductAlreadyInWarehouseException {
         if (repository.existsById(request.getProductId())) {
             throw new SpecifiedProductAlreadyInWarehouseException("Товар " + request.getProductId() + " уже зарегестрирован");
@@ -54,7 +57,8 @@ public class WarehouseService {
         return createBooked(repository.findAllById(cart.getProducts().keySet()));
     }
 
-    public void addQuantity(AddProductToWarehouseRequest request) throws NoSpecifiedProductInWarehouseException {
+    @Transactional
+    public void addQuantity(AddProductToWarehouseRequest request) throws NoSpecifiedProductInWarehouseException, ProductNotFoundException {
         String id = request.getProductId();
         WarehouseProduct product = repository.findById(id)
                 .orElseThrow(() -> new NoSpecifiedProductInWarehouseException("Нет информации о товаре " +
