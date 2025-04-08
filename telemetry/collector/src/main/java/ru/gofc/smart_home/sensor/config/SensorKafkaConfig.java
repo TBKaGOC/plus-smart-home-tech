@@ -1,28 +1,26 @@
 package ru.gofc.smart_home.sensor.config;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.VoidSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.gofc.smart_home.sensor.kafka.SensorProducer;
 import ru.gofc.smart_home.sensor.kafka.SensorEventSerializer;
 
 import java.util.Properties;
 
-@Configuration
-@PropertySource("classpath:application.yaml")
-@RequiredArgsConstructor
+@ConfigurationProperties("kafka.constants")
+@AllArgsConstructor
 public class SensorKafkaConfig {
-    @Value("${kafka.constants.url}")
     private String url;
-    @Value("${kafka.constants.sensor.topic}")
-    private String topic;
+    private Topic sensor;
 
     @Bean
     public SensorProducer sensorProducerConfig() {
@@ -33,6 +31,13 @@ public class SensorKafkaConfig {
 
         Producer<String, SensorEventAvro> producer = new KafkaProducer<>(properties);
 
-        return new SensorProducer(producer, topic);
+        return new SensorProducer(producer, sensor.getTopic());
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    private static class Topic {
+       private String topic;
     }
 }

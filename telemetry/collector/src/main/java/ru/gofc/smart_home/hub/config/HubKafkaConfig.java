@@ -1,29 +1,28 @@
 package ru.gofc.smart_home.hub.config;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.VoidSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import ru.gofc.smart_home.hub.kafka.HubEventSerializer;
 import ru.gofc.smart_home.hub.kafka.HubProducer;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 
 import java.util.Properties;
 
-@Configuration
-@PropertySource("classpath:application.yaml")
-@RequiredArgsConstructor
+@ConfigurationProperties("kafka.constants")
+@AllArgsConstructor
 public class HubKafkaConfig {
-    @Value("${kafka.constants.url}")
-    private String url;
-    @Value("${kafka.constants.hub.topic}")
-    private String topic;
+
+    private final String url;
+
+    private final Topic hub;
 
     @Bean
     public HubProducer hubProducerConfig() {
@@ -34,6 +33,13 @@ public class HubKafkaConfig {
 
         Producer<String, HubEventAvro> producer = new KafkaProducer<>(properties);
 
-        return new HubProducer(producer, topic);
+        return new HubProducer(producer, hub.getTopic());
+    }
+
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    private static class Topic {
+        private String topic;
     }
 }
