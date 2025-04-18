@@ -57,7 +57,7 @@ public class PaymentService {
     }
 
     public Double getTotalCost(OrderDto order) throws NotEnoughInfoInOrderToCalculateException, ProductNotFoundException {
-        log.info("Рассчёт общей стоимости заказа " + order.getOrderId());
+        log.info("Рассчёт общей стоимости заказа {}", order.getOrderId());
         if (order.getDeliveryPrice() == null || order.getDeliveryPrice() <= 0 ||
         order.getProductPrice() == null || order.getProductPrice() <= 0) {
             throw new NotEnoughInfoInOrderToCalculateException(
@@ -70,12 +70,12 @@ public class PaymentService {
 
     @Transactional
     public void paymentSuccess(String id) throws NoOrderFoundException {
-        log.info("Присвоение статуса SUCCESS оплате" + id);
+        log.info("Присвоение статуса SUCCESS оплате {}", id);
         order.payment(setStatus(id, PaymentStatus.SUCCESS).getOrderId());
     }
 
     public Double productCost(OrderDto order) throws NotEnoughInfoInOrderToCalculateException, ProductNotFoundException {
-        log.info("Рассчёт стоимости продуктов для заказа " + order.getOrderId());
+        log.info("Рассчёт стоимости продуктов для заказа {}", order.getOrderId());
         if (order.getProducts() == null) {
             throw new NotEnoughInfoInOrderToCalculateException(
                     "Недостаточно информации для определения общей стоимости заказа " + order.getOrderId()
@@ -94,7 +94,7 @@ public class PaymentService {
 
     @Transactional
     public void paymentFailed(String id) throws NoOrderFoundException {
-        log.info("Присвоение статуса FAILED оплате " + id);
+        log.info("Присвоение статуса FAILED оплате {}", id);
         order.paymentFailed(setStatus(id, PaymentStatus.FAILED).getOrderId());
     }
 

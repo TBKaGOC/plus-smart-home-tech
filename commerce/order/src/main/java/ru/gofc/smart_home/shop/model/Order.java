@@ -37,7 +37,7 @@ public class Order {
     Double productPrice;
     @Column(name = "total_price")
     Double totalPrice;
-    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinTable(
             name = "order_products",
             joinColumns = @JoinColumn(name = "order_id"),

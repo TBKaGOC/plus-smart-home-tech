@@ -80,12 +80,15 @@ public class WarehouseService {
 
     @Transactional
     public BookedProductsDto assembly(AssemblyProductsForOrderRequest request) throws ProductInShoppingCartLowQuantityInWarehouse, NoOrderFoundException {
+        List<WarehouseProduct> products = repository.findAllById(request.getProducts().keySet());
+        Map<String, Integer> quantities = products.stream()
+                .collect(Collectors.toMap(WarehouseProduct::getId, WarehouseProduct::getQuantity));
+
         for (String id : request.getProducts().keySet()) {
-            if (request.getProducts().get(id) > repository.findQuantityById(id)) {
+            if (request.getProducts().get(id) > quantities.get(id)) {
                 throw new ProductInShoppingCartLowQuantityInWarehouse("Товара " + id + " недостаточно на складе");
             }
         }
-        List<WarehouseProduct> products = repository.findAllById(request.getProducts().keySet());
         changeQuantity(products, request.getProducts(), true);
 
         orderRepository.save(new OrderBooking(

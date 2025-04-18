@@ -18,4 +18,7 @@ spring:
     #url: jdbc:h2:file:./db/shop
     username: shop
     password: shop
-baseCost: 5.0
+costConst:
+  baseCost: 5.0
+  weightCoff: 0.3
+  volumeCoff: 0.2

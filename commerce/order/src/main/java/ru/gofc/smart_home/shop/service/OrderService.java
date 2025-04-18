@@ -38,8 +38,8 @@ public class OrderService {
     final DeliveryClient delivery;
 
     public List<OrderDto> getClientOrders(String username) throws NotAuthorizedUserException {
-        log.info("Получение заказов клиента " + username);
-        if (username.isBlank()) {
+        log.info("Получение заказов клиента {}", username);
+        if (username == null || username.isBlank()) {
             throw new NotAuthorizedUserException("Недопустимое имя пользователя");
         }
 
@@ -50,8 +50,8 @@ public class OrderService {
 
     @Transactional
     public OrderDto createNewOrder(CreateNewOrderRequest request) throws NoSpecifiedProductInWarehouseException, ProductInShoppingCartLowQuantityInWarehouse, NoOrderFoundException, ProductNotFoundException, NotEnoughInfoInOrderToCalculateException, NoDeliveryFoundException {
-        log.info("Создание новго заказа по корзине " + request.getShoppingCart().getShoppingCartId());
-        log.debug("Создание нового заказа по запросу: " + request);
+        log.info("Создание новго заказа по корзине {}", request.getShoppingCart().getShoppingCartId());
+        log.debug("Создание нового заказа по запросу: {}", request);
 
         Order order = Order.builder()
                 .id(String.valueOf(UUID.randomUUID()))
@@ -74,7 +74,7 @@ public class OrderService {
         order.setDeliveryId(newDelivery.getDeliveryId());
         repository.save(order);
 
-        log.debug("Сохранён заказ " + order);
+        log.debug("Сохранён заказ {}", order);
 
         payment.payment(OrderMapper.mapToDto(order));
         return OrderMapper.mapToDto(order);
@@ -82,8 +82,8 @@ public class OrderService {
 
     @Transactional
     public OrderDto productReturn(ProductReturnRequest request) throws NoOrderFoundException, ProductInShoppingCartLowQuantityInWarehouse {
-        log.info("Возвращение продуктов для заказа " + request.getOrderId());
-        log.debug("Возвращение продуктов " + request.getProducts() + " для заказа " + request.getOrderId());
+        log.info("Возвращение продуктов для заказа {}", request.getOrderId());
+        log.debug("Возвращение продуктов {} для заказа {}", request.getProducts(), request.getOrderId());
 
         Order order = repository.findById(request.getOrderId()).orElseThrow(
                 () -> new NoOrderFoundException("Не найден заказ " + request.getOrderId())
@@ -100,37 +100,37 @@ public class OrderService {
 
     @Transactional
     public OrderDto payment(String orderId) throws NoOrderFoundException {
-        log.info("Изменеие статуса на PAID заказа " + orderId);
+        log.info("Изменеие статуса на PAID заказа {}", orderId);
         return setState(orderId, OrderState.PAID);
     }
 
     @Transactional
     public OrderDto paymentFailed(String orderId) throws NoOrderFoundException {
-        log.info("Изменеие статуса на PAYMENT_FAILED заказа " + orderId);
+        log.info("Изменеие статуса на PAYMENT_FAILED заказа {}", orderId);
         return setState(orderId, OrderState.PAYMENT_FAILED);
     }
 
     @Transactional
     public OrderDto delivery(String orderId) throws NoOrderFoundException {
-        log.info("Изменеие статуса на DELIVERED заказа " + orderId);
+        log.info("Изменеие статуса на DELIVERED заказа {}", orderId);
         return setState(orderId, OrderState.DELIVERED);
     }
 
     @Transactional
     public OrderDto deliveryFailed(String orderId) throws NoOrderFoundException {
-        log.info("Изменеие статуса на DELIVERY_FAILED заказа " + orderId);
+        log.info("Изменеие статуса на DELIVERY_FAILED заказа {}", orderId);
         return setState(orderId, OrderState.DELIVERY_FAILED);
     }
 
     @Transactional
     public OrderDto complete(String orderId) throws NoOrderFoundException {
-        log.info("Изменеие статуса на COMPLETED заказа " + orderId);
+        log.info("Изменеие статуса на COMPLETED заказа {}", orderId);
         return setState(orderId, OrderState.COMPLETED);
     }
 
     @Transactional
     public OrderDto calculateTotalCost(String orderId) throws NoOrderFoundException, ProductNotFoundException, NotEnoughInfoInOrderToCalculateException {
-        log.info("Определение общей стоимости заказа " + orderId);
+        log.info("Определение общей стоимости заказа {}", orderId);
         Order order = repository.findById(orderId).orElseThrow(
                 () -> new NoOrderFoundException("Не найден заказ " + orderId)
         );
@@ -140,7 +140,7 @@ public class OrderService {
 
     @Transactional
     public OrderDto calculateDeliveryCost(String orderId) throws NoOrderFoundException, NoDeliveryFoundException {
-        log.info("Определение стоимости доставки заказа " + orderId);
+        log.info("Определение стоимости доставки заказа {}", orderId);
 
         Order order = repository.findById(orderId).orElseThrow(
                 () -> new NoOrderFoundException("Не найден заказ " + orderId)
@@ -154,13 +154,13 @@ public class OrderService {
 
     @Transactional
     public OrderDto assembly(String orderId) throws NoOrderFoundException {
-        log.info("Изменеие статуса на ASSEMBLED заказа " + orderId);
+        log.info("Изменеие статуса на ASSEMBLED заказа {}", orderId);
         return setState(orderId, OrderState.ASSEMBLED);
     }
 
     @Transactional
     public OrderDto assemblyFailed(String orderId) throws NoOrderFoundException {
-        log.info("Изменеие статуса на ASSEMBLY_FAILED заказа " + orderId);
+        log.info("Изменеие статуса на ASSEMBLY_FAILED заказа {}", orderId);
         return setState(orderId, OrderState.ASSEMBLY_FAILED);
     }
 
